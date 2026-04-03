@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
-import { RealtimeSync } from '@/components/RealtimeSync'
+import { RealtimeSync }      from '@/components/RealtimeSync'
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [qc] = useState(

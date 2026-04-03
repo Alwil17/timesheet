@@ -205,7 +205,12 @@ export interface Database {
       }
     }
     Views: Record<string, never>
-    Functions: Record<string, never>
+    Functions: {
+      auto_stop_stale_timers: {
+        Args: { max_hours?: number }
+        Returns: Database['public']['Tables']['time_entries']['Row'][]
+      }
+    }
     Enums: Record<string, never>
     CompositeTypes: Record<string, never>
   }
