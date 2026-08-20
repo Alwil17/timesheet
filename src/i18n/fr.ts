@@ -133,7 +133,6 @@ export const fr: Dictionary = {
     thisMonth: 'Ce mois-ci',
     totalTracked: 'temps total suivi',
     empty: 'Aucune entrée complétée ce mois-ci.',
-    emptyWeek: 'Aucune entrée complétée cette semaine.',
     editGoals: 'Modifier les objectifs',
     weeklyGoalLabel: 'Objectif hebdomadaire (heures)',
     monthlyGoalLabel: 'Objectif mensuel (heures)',

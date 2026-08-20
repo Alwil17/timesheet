@@ -131,7 +131,6 @@ export const en = {
     thisMonth: 'This Month',
     totalTracked: 'total tracked',
     empty: 'No completed entries this month.',
-    emptyWeek: 'No completed entries this week.',
     editGoals: 'Edit goals',
     weeklyGoalLabel: 'Weekly goal (hours)',
     monthlyGoalLabel: 'Monthly goal (hours)',
