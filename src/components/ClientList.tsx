@@ -36,12 +36,14 @@ function ClientRow({ c }: { c: Client }) {
         <form onSubmit={handleSave} className="space-y-2">
           <input
             required
+            aria-label={t('clients.namePlaceholder')}
             value={name}
             onChange={(e) => setName(e.target.value)}
             className="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
           />
           <input
             placeholder={t('clients.descriptionPlaceholder')}
+            aria-label={t('clients.descriptionPlaceholder')}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             className="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
@@ -103,7 +105,7 @@ function ClientRow({ c }: { c: Client }) {
 }
 
 export function ClientList() {
-  const { data: clients = [], isLoading } = useClients()
+  const { data: clients = [], isLoading, isError, error } = useClients()
   const createMut = useCreateClient()
   const t = useT()
 
@@ -124,18 +126,26 @@ export function ClientList() {
 
   return (
     <div className="space-y-6">
+      {isError && (
+        <p role="alert" className="text-red-600 text-xs bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+          {getErrorMessage(error)}
+        </p>
+      )}
+
       {/* Create form */}
       <form onSubmit={handleCreate} className="bg-white border border-gray-200 rounded-xl p-4 space-y-3">
         <h3 className="font-medium text-gray-700">{t('clients.newClient')}</h3>
         <input
           required
           placeholder={t('clients.namePlaceholder')}
+          aria-label={t('clients.namePlaceholder')}
           value={name}
           onChange={(e) => setName(e.target.value)}
           className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
         />
         <input
           placeholder={t('clients.descriptionPlaceholder')}
+          aria-label={t('clients.descriptionPlaceholder')}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"

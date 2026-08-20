@@ -47,12 +47,14 @@ function ProjectRow({ p, clients }: { p: ProjectWithClient; clients: { id: strin
         <form onSubmit={handleSave} className="space-y-2">
           <input
             required
+            aria-label={t('projects.namePlaceholder')}
             value={name}
             onChange={(e) => setName(e.target.value)}
             className="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
           />
           <select
             required
+            aria-label={t('projects.selectClient')}
             value={clientId}
             onChange={(e) => setClientId(e.target.value)}
             className="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
@@ -66,6 +68,7 @@ function ProjectRow({ p, clients }: { p: ProjectWithClient; clients: { id: strin
             min={0}
             step={0.01}
             placeholder={t('projects.ratePlaceholder')}
+            aria-label={t('projects.ratePlaceholder')}
             value={hourlyRate}
             onChange={(e) => setHourlyRate(e.target.value)}
             className="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
@@ -130,8 +133,8 @@ function ProjectRow({ p, clients }: { p: ProjectWithClient; clients: { id: strin
 }
 
 export function ProjectList() {
-  const { data: projects = [], isLoading } = useProjects()
-  const { data: clients  = []            } = useClients()
+  const { data: projects = [], isLoading, isError: projectsError, error: projectsErrorObj } = useProjects()
+  const { data: clients  = [], isError: clientsError, error: clientsErrorObj } = useClients()
   const createMut = useCreateProject()
   const t = useT()
 
@@ -156,18 +159,26 @@ export function ProjectList() {
 
   return (
     <div className="space-y-6">
+      {(projectsError || clientsError) && (
+        <p role="alert" className="text-red-600 text-xs bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+          {getErrorMessage(projectsErrorObj ?? clientsErrorObj)}
+        </p>
+      )}
+
       {/* Create form */}
       <form onSubmit={handleCreate} className="bg-white border border-gray-200 rounded-xl p-4 space-y-3">
         <h3 className="font-medium text-gray-700">{t('projects.newProject')}</h3>
         <input
           required
           placeholder={t('projects.namePlaceholder')}
+          aria-label={t('projects.namePlaceholder')}
           value={name}
           onChange={(e) => setName(e.target.value)}
           className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
         />
         <select
           required
+          aria-label={t('projects.selectClient')}
           value={clientId}
           onChange={(e) => setClientId(e.target.value)}
           className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
@@ -182,6 +193,7 @@ export function ProjectList() {
           min={0}
           step={0.01}
           placeholder={t('projects.ratePlaceholder')}
+          aria-label={t('projects.ratePlaceholder')}
           value={hourlyRate}
           onChange={(e) => setHourlyRate(e.target.value)}
           className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
