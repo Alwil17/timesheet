@@ -17,6 +17,8 @@ export interface Database {
           id: string
           email: string
           full_name: string | null
+          weekly_goal_hours: number | null
+          monthly_goal_hours: number | null
           created_at: string
           updated_at: string
         }
@@ -24,12 +26,16 @@ export interface Database {
           id: string
           email: string
           full_name?: string | null
+          weekly_goal_hours?: number | null
+          monthly_goal_hours?: number | null
           created_at?: string
           updated_at?: string
         }
         Update: {
           email?: string
           full_name?: string | null
+          weekly_goal_hours?: number | null
+          monthly_goal_hours?: number | null
           updated_at?: string
         }
         Relationships: []
