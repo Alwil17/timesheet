@@ -3,10 +3,12 @@
 import { useEffect, useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import { useT } from '@/i18n/LocaleProvider'
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
   const router   = useRouter()
   const pathname = usePathname()
+  const t        = useT()
   const [ready, setReady] = useState(false)
 
   useEffect(() => {
@@ -37,7 +39,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   if (!ready) {
     return (
       <div className="min-h-screen flex items-center justify-center text-gray-400 text-sm">
-        Loading…
+        {t('common.loading')}
       </div>
     )
   }

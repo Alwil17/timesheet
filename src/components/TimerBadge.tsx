@@ -3,11 +3,13 @@
 import { useTimerStore } from '@/store/timerStore'
 import { useStopTimer } from '@/hooks/useTimeEntries'
 import { formatElapsed } from '@/lib/format'
+import { useT } from '@/i18n/LocaleProvider'
 
 export function TimerBadge() {
   const running   = useTimerStore((s) => s.running)
   const elapsedMs = useTimerStore((s) => s.elapsedMs)
   const stop      = useStopTimer()
+  const t         = useT()
 
   if (!running) return null
 
@@ -22,7 +24,7 @@ export function TimerBadge() {
         disabled={stop.isPending}
         className="text-xs text-red-600 hover:text-red-800 font-medium disabled:opacity-50"
       >
-        Stop
+        {t('timer.stop')}
       </button>
     </div>
   )
