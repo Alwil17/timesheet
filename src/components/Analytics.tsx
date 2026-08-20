@@ -5,8 +5,12 @@ import { useTimeEntries } from '@/hooks/useTimeEntries'
 import { formatDuration }  from '@/lib/format'
 import { startOfMonth, endOfMonth, format } from 'date-fns'
 import type { TimeEntryWithProject } from '@/types/database.types'
+import { useT, useLocale } from '@/i18n/LocaleProvider'
+import { dateLocales } from '@/i18n/dateLocale'
 
 export function Analytics() {
+  const t = useT()
+  const { locale } = useLocale()
   const now   = new Date()
   const from  = startOfMonth(now).toISOString()
   const to    = endOfMonth(now).toISOString()
@@ -32,16 +36,16 @@ export function Analytics() {
 
   return (
     <div className="bg-white border border-gray-200 rounded-2xl p-6">
-      <h2 className="text-lg font-semibold text-gray-800 mb-1">This Month</h2>
-      <p className="text-xs text-gray-400 mb-4">{format(now, 'MMMM yyyy')}</p>
+      <h2 className="text-lg font-semibold text-gray-800 mb-1">{t('analytics.thisMonth')}</h2>
+      <p className="text-xs text-gray-400 mb-4">{format(now, 'MMMM yyyy', { locale: dateLocales[locale] })}</p>
 
       <div className="mb-4">
         <p className="text-3xl font-bold text-brand-600">{formatDuration(totalSeconds)}</p>
-        <p className="text-xs text-gray-400">total tracked</p>
+        <p className="text-xs text-gray-400">{t('analytics.totalTracked')}</p>
       </div>
 
       {stats.length === 0 ? (
-        <p className="text-gray-400 text-sm">No completed entries this month.</p>
+        <p className="text-gray-400 text-sm">{t('analytics.empty')}</p>
       ) : (
         <ul className="space-y-2">
           {stats.map((s) => {
