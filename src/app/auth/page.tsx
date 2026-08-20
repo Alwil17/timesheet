@@ -78,15 +78,17 @@ export default function AuthPage() {
         setMode('login')
         setPassword('')
         setConfirm('')
+        setLoading(false)
       } else {
         const { error: signInError } = await supabase.auth.signInWithPassword({ email, password })
         if (signInError) throw signInError
+        // Keep the button disabled until the redirect actually navigates away —
+        // resetting loading here would let the user click it again mid-transition.
         router.push('/')
         router.refresh()
       }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : t('auth.genericError'))
-    } finally {
       setLoading(false)
     }
   }
