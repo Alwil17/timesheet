@@ -2,12 +2,15 @@
 
 import { WARN_TIMER_HOURS, MAX_TIMER_HOURS } from '@/services/staleTimer'
 import { useStaleTimerGuard }                from '@/hooks/useStaleTimerGuard'
+import { IDLE_TIMEOUT_MINUTES }              from '@/services/idleTimer'
+import { useIdleTimerGuard }                 from '@/hooks/useIdleTimerGuard'
 import { useTimerStore }                     from '@/store/timerStore'
 import { useStopTimer }                      from '@/hooks/useTimeEntries'
 import { useT }                              from '@/i18n/LocaleProvider'
 
 export function StaleTimerBanner() {
   const { isWarning, autoStopped, dismissAutoStopped } = useStaleTimerGuard()
+  const { idleStopped, dismissIdleStopped } = useIdleTimerGuard()
   const running  = useTimerStore((s) => s.running)
   const stop     = useStopTimer()
   const t        = useT()
@@ -23,6 +26,25 @@ export function StaleTimerBanner() {
         </div>
         <button
           onClick={dismissAutoStopped}
+          className="text-orange-400 hover:text-orange-600 text-xs font-medium shrink-0 transition-colors"
+        >
+          {t('staleTimer.dismiss')}
+        </button>
+      </div>
+    )
+  }
+
+  if (idleStopped) {
+    return (
+      <div role="alert" className="bg-orange-50 border border-orange-200 rounded-xl px-4 py-3 flex items-start justify-between gap-4">
+        <div>
+          <p className="text-sm font-semibold text-orange-700"><span aria-hidden="true">⏹</span> {t('idleTimer.stoppedTitle')}</p>
+          <p className="text-xs text-orange-600 mt-0.5">
+            {t('idleTimer.stoppedBody', { minutes: IDLE_TIMEOUT_MINUTES })}
+          </p>
+        </div>
+        <button
+          onClick={dismissIdleStopped}
           className="text-orange-400 hover:text-orange-600 text-xs font-medium shrink-0 transition-colors"
         >
           {t('staleTimer.dismiss')}
