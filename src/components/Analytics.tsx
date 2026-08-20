@@ -7,6 +7,7 @@ import { startOfMonth, endOfMonth, format } from 'date-fns'
 import type { TimeEntryWithProject } from '@/types/database.types'
 import { useT, useLocale } from '@/i18n/LocaleProvider'
 import { dateLocales } from '@/i18n/dateLocale'
+import { getErrorMessage } from '@/lib/errors'
 
 export function Analytics() {
   const t = useT()
@@ -15,7 +16,7 @@ export function Analytics() {
   const from  = startOfMonth(now).toISOString()
   const to    = endOfMonth(now).toISOString()
 
-  const { data: entries = [] } = useTimeEntries({ from, to })
+  const { data: entries = [], isError, error } = useTimeEntries({ from, to })
 
   const stats = useMemo(() => {
     const byProject: Record<string, { name: string; client: string; seconds: number }> = {}
@@ -43,6 +44,12 @@ export function Analytics() {
         <p className="text-3xl font-bold text-brand-600">{formatDuration(totalSeconds)}</p>
         <p className="text-xs text-gray-400">{t('analytics.totalTracked')}</p>
       </div>
+
+      {isError && (
+        <p role="alert" className="text-red-600 text-xs bg-red-50 border border-red-200 rounded-lg px-3 py-2 mb-4">
+          {getErrorMessage(error)}
+        </p>
+      )}
 
       {stats.length === 0 ? (
         <p className="text-gray-400 text-sm">{t('analytics.empty')}</p>

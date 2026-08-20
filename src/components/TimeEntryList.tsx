@@ -106,6 +106,7 @@ function EntryRow({ e, projects }: { e: EntryWithRelations; projects: Project[] 
           <input
             type="text"
             placeholder={t('timeEntryList.descriptionPlaceholder')}
+            aria-label={t('timeEntryList.descriptionPlaceholder')}
             value={description}
             onChange={(ev) => setDescription(ev.target.value)}
             className="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
@@ -204,11 +205,19 @@ function EntryRow({ e, projects }: { e: EntryWithRelations; projects: Project[] 
 }
 
 export function TimeEntryList({ projectId }: { projectId?: string }) {
-  const { data: entries = [], isLoading } = useTimeEntries({ projectId, limit: 50 })
+  const { data: entries = [], isLoading, isError, error } = useTimeEntries({ projectId, limit: 50 })
   const { data: projects = [] } = useProjects()
   const t = useT()
 
   if (isLoading) return <p className="text-gray-500 text-sm">{t('common.loading')}</p>
+
+  if (isError) {
+    return (
+      <p role="alert" className="text-red-600 text-xs bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+        {getErrorMessage(error)}
+      </p>
+    )
+  }
 
   return (
     <ul className="space-y-2">
