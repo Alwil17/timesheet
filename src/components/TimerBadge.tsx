@@ -15,7 +15,7 @@ export function TimerBadge() {
 
   return (
     <div className="flex items-center gap-3 bg-brand-50 border border-brand-200 rounded-full px-4 py-1.5">
-      <span className="inline-block w-2 h-2 rounded-full bg-brand-500 animate-pulse" />
+      <span aria-hidden="true" className="inline-block w-2 h-2 rounded-full bg-brand-500 animate-pulse" />
       <span className="font-mono text-sm font-semibold text-brand-700">
         {formatElapsed(elapsedMs)}
       </span>

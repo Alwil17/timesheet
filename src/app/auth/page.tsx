@@ -100,7 +100,7 @@ export default function AuthPage() {
           <LanguageSwitcher />
         </div>
         <div className="text-center">
-          <p className="text-3xl mb-2">⏱</p>
+          <p className="text-3xl mb-2" aria-hidden="true">⏱</p>
           <h1 className="text-2xl font-bold text-gray-900">{t('auth.title')}</h1>
           <p className="text-sm text-gray-500 mt-1">
             {mode === 'login' ? t('auth.signInSubtitle') : t('auth.signUpSubtitle')}
@@ -110,54 +110,60 @@ export default function AuthPage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           {mode === 'signup' && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">{t('auth.fullName')}</label>
+              <label htmlFor="auth-full-name" className="block text-sm font-medium text-gray-700 mb-1">{t('auth.fullName')}</label>
               <input
+                id="auth-full-name"
                 type="text"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 onBlur={() => touch('fullName')}
                 placeholder={t('auth.fullNamePlaceholder')}
+                aria-invalid={touched.has('fullName') && !!fieldErrors.fullName}
                 className={`w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 ${
                   touched.has('fullName') && fieldErrors.fullName ? 'border-red-400 bg-red-50' : 'border-gray-300'
                 }`}
               />
               {touched.has('fullName') && fieldErrors.fullName && (
-                <p className="text-xs text-red-500 mt-1">{fieldErrors.fullName}</p>
+                <p role="alert" className="text-xs text-red-500 mt-1">{fieldErrors.fullName}</p>
               )}
             </div>
           )}
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">{t('auth.email')}</label>
+            <label htmlFor="auth-email" className="block text-sm font-medium text-gray-700 mb-1">{t('auth.email')}</label>
             <input
+              id="auth-email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               onBlur={() => touch('email')}
               placeholder={t('auth.emailPlaceholder')}
+              aria-invalid={touched.has('email') && !!fieldErrors.email}
               className={`w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 ${
                 touched.has('email') && fieldErrors.email ? 'border-red-400 bg-red-50' : 'border-gray-300'
               }`}
             />
             {touched.has('email') && fieldErrors.email && (
-              <p className="text-xs text-red-500 mt-1">{fieldErrors.email}</p>
+              <p role="alert" className="text-xs text-red-500 mt-1">{fieldErrors.email}</p>
             )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">{t('auth.password')}</label>
+            <label htmlFor="auth-password" className="block text-sm font-medium text-gray-700 mb-1">{t('auth.password')}</label>
             <input
+              id="auth-password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               onBlur={() => touch('password')}
               placeholder="••••••••"
+              aria-invalid={touched.has('password') && !!fieldErrors.password}
               className={`w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 ${
                 touched.has('password') && fieldErrors.password ? 'border-red-400 bg-red-50' : 'border-gray-300'
               }`}
             />
             {touched.has('password') && fieldErrors.password && (
-              <p className="text-xs text-red-500 mt-1">{fieldErrors.password}</p>
+              <p role="alert" className="text-xs text-red-500 mt-1">{fieldErrors.password}</p>
             )}
             {mode === 'signup' && !fieldErrors.password && (
               <p className="text-xs text-gray-400 mt-1">{t('auth.passwordHint')}</p>
@@ -166,30 +172,32 @@ export default function AuthPage() {
 
           {mode === 'signup' && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">{t('auth.confirmPassword')}</label>
+              <label htmlFor="auth-confirm-password" className="block text-sm font-medium text-gray-700 mb-1">{t('auth.confirmPassword')}</label>
               <input
+                id="auth-confirm-password"
                 type="password"
                 value={confirm}
                 onChange={(e) => setConfirm(e.target.value)}
                 onBlur={() => touch('confirm')}
                 placeholder="••••••••"
+                aria-invalid={touched.has('confirm') && !!fieldErrors.confirm}
                 className={`w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 ${
                   touched.has('confirm') && fieldErrors.confirm ? 'border-red-400 bg-red-50' : 'border-gray-300'
                 }`}
               />
               {touched.has('confirm') && fieldErrors.confirm && (
-                <p className="text-xs text-red-500 mt-1">{fieldErrors.confirm}</p>
+                <p role="alert" className="text-xs text-red-500 mt-1">{fieldErrors.confirm}</p>
               )}
             </div>
           )}
 
           {error && (
-            <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+            <p role="alert" className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
               {error}
             </p>
           )}
           {message && (
-            <p className="text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
+            <p role="alert" className="text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
               {message}
             </p>
           )}
