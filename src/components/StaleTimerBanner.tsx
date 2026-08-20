@@ -4,27 +4,28 @@ import { WARN_TIMER_HOURS, MAX_TIMER_HOURS } from '@/services/staleTimer'
 import { useStaleTimerGuard }                from '@/hooks/useStaleTimerGuard'
 import { useTimerStore }                     from '@/store/timerStore'
 import { useStopTimer }                      from '@/hooks/useTimeEntries'
+import { useT }                              from '@/i18n/LocaleProvider'
 
 export function StaleTimerBanner() {
   const { isWarning, autoStopped, dismissAutoStopped } = useStaleTimerGuard()
   const running  = useTimerStore((s) => s.running)
   const stop     = useStopTimer()
+  const t        = useT()
 
   if (autoStopped) {
     return (
       <div role="alert" className="bg-orange-50 border border-orange-200 rounded-xl px-4 py-3 flex items-start justify-between gap-4">
         <div>
-          <p className="text-sm font-semibold text-orange-700"><span aria-hidden="true">⏹</span> Timer auto-arrêté</p>
+          <p className="text-sm font-semibold text-orange-700"><span aria-hidden="true">⏹</span> {t('staleTimer.autoStoppedTitle')}</p>
           <p className="text-xs text-orange-600 mt-0.5">
-            Un timer actif depuis plus de {MAX_TIMER_HOURS}h a été automatiquement arrêté.
-            Vérifiez vos entrées et ajustez l'heure de fin si nécessaire.
+            {t('staleTimer.autoStoppedBody', { hours: MAX_TIMER_HOURS })}
           </p>
         </div>
         <button
           onClick={dismissAutoStopped}
           className="text-orange-400 hover:text-orange-600 text-xs font-medium shrink-0 transition-colors"
         >
-          Fermer
+          {t('staleTimer.dismiss')}
         </button>
       </div>
     )
@@ -34,9 +35,9 @@ export function StaleTimerBanner() {
     return (
       <div role="alert" className="bg-yellow-50 border border-yellow-200 rounded-xl px-4 py-3 flex items-start justify-between gap-4">
         <div>
-          <p className="text-sm font-semibold text-yellow-700"><span aria-hidden="true">⚠️</span> Timer en cours depuis plus de {WARN_TIMER_HOURS}h</p>
+          <p className="text-sm font-semibold text-yellow-700"><span aria-hidden="true">⚠️</span> {t('staleTimer.warningTitle', { hours: WARN_TIMER_HOURS })}</p>
           <p className="text-xs text-yellow-600 mt-0.5">
-            Avez-vous oublié d'arrêter votre timer ? Il sera automatiquement arrêté après {MAX_TIMER_HOURS}h.
+            {t('staleTimer.warningBody', { hours: MAX_TIMER_HOURS })}
           </p>
         </div>
         <button
@@ -44,7 +45,7 @@ export function StaleTimerBanner() {
           disabled={stop.isPending}
           className="shrink-0 bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50"
         >
-          Arrêter
+          {t('staleTimer.stopNow')}
         </button>
       </div>
     )
