@@ -9,7 +9,7 @@ import { getErrorMessage }     from '@/lib/errors'
 import { useT }                from '@/i18n/LocaleProvider'
 
 export function Timer() {
-  const { data: projects = [] } = useProjects()
+  const { data: projects = [], isError: projectsError, error: projectsErrorObj } = useProjects()
   const { data: serverRunning }  = useRunningEntry()
   const t = useT()
 
@@ -61,9 +61,15 @@ export function Timer() {
         </div>
       ) : (
         <div className="flex flex-col gap-3">
+          {projectsError && (
+            <p role="alert" className="text-red-600 text-xs bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+              {getErrorMessage(projectsErrorObj)}
+            </p>
+          )}
           <select
             value={projectId}
             onChange={(e) => setProjectId(e.target.value)}
+            aria-label={t('timer.selectProject')}
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
           >
             <option value="">{t('timer.selectProject')}</option>
@@ -77,6 +83,7 @@ export function Timer() {
           <input
             type="text"
             placeholder={t('timer.descriptionPlaceholder')}
+            aria-label={t('timer.descriptionPlaceholder')}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleStart()}

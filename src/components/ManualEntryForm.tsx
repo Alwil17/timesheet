@@ -7,7 +7,7 @@ import { getErrorMessage }             from '@/lib/errors'
 import { useT }                        from '@/i18n/LocaleProvider'
 
 export function ManualEntryForm() {
-  const { data: projects = [] } = useProjects()
+  const { data: projects = [], isError: projectsError, error: projectsErrorObj } = useProjects()
   const createMut = useCreateManualEntry()
   const t = useT()
 
@@ -46,10 +46,17 @@ export function ManualEntryForm() {
     >
       <h3 className="font-medium text-gray-700">{t('manualEntry.heading')}</h3>
 
+      {projectsError && (
+        <p role="alert" className="text-red-600 text-xs bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+          {getErrorMessage(projectsErrorObj)}
+        </p>
+      )}
+
       <select
         required
         value={projectId}
         onChange={(e) => setProjectId(e.target.value)}
+        aria-label={t('manualEntry.selectProject')}
         className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
       >
         <option value="">{t('manualEntry.selectProject')}</option>
@@ -91,6 +98,7 @@ export function ManualEntryForm() {
 
       <input
         placeholder={t('manualEntry.descriptionPlaceholder')}
+        aria-label={t('manualEntry.descriptionPlaceholder')}
         value={description}
         onChange={(e) => setDescription(e.target.value)}
         className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
