@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
+import { useT, type TFunction } from '@/i18n/LocaleProvider'
+import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 
 type Mode = 'login' | 'signup'
 
@@ -15,29 +17,30 @@ interface FieldErrors {
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
-function validate(mode: Mode, fullName: string, email: string, password: string, confirm: string): FieldErrors {
+function validate(t: TFunction, mode: Mode, fullName: string, email: string, password: string, confirm: string): FieldErrors {
   const errors: FieldErrors = {}
 
   if (mode === 'signup') {
-    if (!fullName.trim()) errors.fullName = 'Full name is required.'
-    else if (fullName.trim().length < 2) errors.fullName = 'Must be at least 2 characters.'
+    if (!fullName.trim()) errors.fullName = t('auth.errors.fullNameRequired')
+    else if (fullName.trim().length < 2) errors.fullName = t('auth.errors.fullNameTooShort')
   }
 
-  if (!email.trim()) errors.email = 'Email is required.'
-  else if (!EMAIL_RE.test(email)) errors.email = 'Enter a valid email address.'
+  if (!email.trim()) errors.email = t('auth.errors.emailRequired')
+  else if (!EMAIL_RE.test(email)) errors.email = t('auth.errors.emailInvalid')
 
-  if (!password) errors.password = 'Password is required.'
-  else if (password.length < 8) errors.password = 'Password must be at least 8 characters.'
-  else if (!/[A-Z]/.test(password)) errors.password = 'Must contain at least one uppercase letter.'
-  else if (!/[0-9]/.test(password)) errors.password = 'Must contain at least one number.'
+  if (!password) errors.password = t('auth.errors.passwordRequired')
+  else if (password.length < 8) errors.password = t('auth.errors.passwordTooShort')
+  else if (!/[A-Z]/.test(password)) errors.password = t('auth.errors.passwordNeedsUpper')
+  else if (!/[0-9]/.test(password)) errors.password = t('auth.errors.passwordNeedsNumber')
 
-  if (mode === 'signup' && password !== confirm) errors.confirm = 'Passwords do not match.'
+  if (mode === 'signup' && password !== confirm) errors.confirm = t('auth.errors.passwordMismatch')
 
   return errors
 }
 
 export default function AuthPage() {
   const router = useRouter()
+  const t = useT()
   const [mode,      setMode]     = useState<Mode>('login')
   const [email,     setEmail]    = useState('')
   const [password,  setPassword] = useState('')
@@ -56,7 +59,7 @@ export default function AuthPage() {
     setError(null)
     setMessage(null)
 
-    const errors = validate(mode, fullName, email, password, confirm)
+    const errors = validate(t, mode, fullName, email, password, confirm)
     setFieldErrors(errors)
     setTouched(new Set(['fullName', 'email', 'password', 'confirm']))
     if (Object.keys(errors).length > 0) return
@@ -71,7 +74,7 @@ export default function AuthPage() {
           options: { data: { full_name: fullName } },
         })
         if (signUpError) throw signUpError
-        setMessage('Account created! Check your email to confirm, then log in.')
+        setMessage(t('auth.signUpSuccess'))
         setMode('login')
         setPassword('')
         setConfirm('')
@@ -82,7 +85,7 @@ export default function AuthPage() {
         router.refresh()
       }
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'An error occurred')
+      setError(err instanceof Error ? err.message : t('auth.genericError'))
     } finally {
       setLoading(false)
     }
@@ -91,24 +94,27 @@ export default function AuthPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-sm border border-gray-200 p-8 space-y-6">
+        <div className="flex justify-end">
+          <LanguageSwitcher />
+        </div>
         <div className="text-center">
           <p className="text-3xl mb-2">⏱</p>
-          <h1 className="text-2xl font-bold text-gray-900">Timesheet</h1>
+          <h1 className="text-2xl font-bold text-gray-900">{t('auth.title')}</h1>
           <p className="text-sm text-gray-500 mt-1">
-            {mode === 'login' ? 'Sign in to your account' : 'Create a new account'}
+            {mode === 'login' ? t('auth.signInSubtitle') : t('auth.signUpSubtitle')}
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {mode === 'signup' && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Full name</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('auth.fullName')}</label>
               <input
                 type="text"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 onBlur={() => touch('fullName')}
-                placeholder="John Doe"
+                placeholder={t('auth.fullNamePlaceholder')}
                 className={`w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 ${
                   touched.has('fullName') && fieldErrors.fullName ? 'border-red-400 bg-red-50' : 'border-gray-300'
                 }`}
@@ -120,13 +126,13 @@ export default function AuthPage() {
           )}
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('auth.email')}</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               onBlur={() => touch('email')}
-              placeholder="you@example.com"
+              placeholder={t('auth.emailPlaceholder')}
               className={`w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 ${
                 touched.has('email') && fieldErrors.email ? 'border-red-400 bg-red-50' : 'border-gray-300'
               }`}
@@ -137,7 +143,7 @@ export default function AuthPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('auth.password')}</label>
             <input
               type="password"
               value={password}
@@ -152,13 +158,13 @@ export default function AuthPage() {
               <p className="text-xs text-red-500 mt-1">{fieldErrors.password}</p>
             )}
             {mode === 'signup' && !fieldErrors.password && (
-              <p className="text-xs text-gray-400 mt-1">Min. 8 characters, 1 uppercase, 1 number.</p>
+              <p className="text-xs text-gray-400 mt-1">{t('auth.passwordHint')}</p>
             )}
           </div>
 
           {mode === 'signup' && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Confirm password</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('auth.confirmPassword')}</label>
               <input
                 type="password"
                 value={confirm}
@@ -191,12 +197,14 @@ export default function AuthPage() {
             disabled={loading}
             className="w-full bg-brand-500 hover:bg-brand-600 text-white py-2.5 rounded-xl font-semibold text-sm transition-colors disabled:opacity-50"
           >
-            {loading ? '…' : mode === 'login' ? 'Sign in' : 'Create account'}
+            {loading
+              ? (mode === 'login' ? t('auth.signingIn') : t('auth.creatingAccount'))
+              : (mode === 'login' ? t('auth.signIn') : t('auth.createAccount'))}
           </button>
         </form>
 
         <p className="text-center text-sm text-gray-500">
-          {mode === 'login' ? "Don't have an account?" : 'Already have an account?'}{' '}
+          {mode === 'login' ? t('auth.noAccount') : t('auth.haveAccount')}{' '}
           <button
             onClick={() => {
               setMode(mode === 'login' ? 'signup' : 'login')
@@ -209,7 +217,7 @@ export default function AuthPage() {
             }}
             className="text-brand-600 font-medium hover:underline"
           >
-            {mode === 'login' ? 'Sign up' : 'Sign in'}
+            {mode === 'login' ? t('auth.signUp') : t('auth.signIn')}
           </button>
         </p>
       </div>

@@ -80,3 +80,5 @@ export function useLocale() {
 export function useT() {
   return useLocaleContext().t
 }
+
+export type TFunction = LocaleContextValue['t']
