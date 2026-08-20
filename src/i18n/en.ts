@@ -121,9 +121,23 @@ export const en = {
     warningBody: 'Did you forget to stop your timer? It will be automatically stopped after {hours}h.',
     stopNow: 'Stop',
   },
+  idleTimer: {
+    stoppedTitle: 'Timer auto-stopped (idle)',
+    stoppedBody:
+      'No activity was detected for {minutes} minutes, so your timer was automatically stopped at your last active moment.',
+  },
   analytics: {
+    thisWeek: 'This Week',
     thisMonth: 'This Month',
     totalTracked: 'total tracked',
     empty: 'No completed entries this month.',
+    emptyWeek: 'No completed entries this week.',
+    editGoals: 'Edit goals',
+    weeklyGoalLabel: 'Weekly goal (hours)',
+    monthlyGoalLabel: 'Monthly goal (hours)',
+    goalPlaceholder: 'No goal set',
+    saveGoals: 'Save',
+    setGoalPrompt: 'Set a goal to track your progress',
+    ofGoal: 'of {hours}h goal',
   },
 } as const

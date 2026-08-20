@@ -123,9 +123,23 @@ export const fr: Dictionary = {
     warningBody: "Avez-vous oublié d'arrêter votre minuteur ? Il sera automatiquement arrêté après {hours}h.",
     stopNow: 'Arrêter',
   },
+  idleTimer: {
+    stoppedTitle: 'Minuteur auto-arrêté (inactivité)',
+    stoppedBody:
+      "Aucune activité n'a été détectée pendant {minutes} minutes ; votre minuteur a été automatiquement arrêté à votre dernier moment actif.",
+  },
   analytics: {
+    thisWeek: 'Cette semaine',
     thisMonth: 'Ce mois-ci',
     totalTracked: 'temps total suivi',
     empty: 'Aucune entrée complétée ce mois-ci.',
+    emptyWeek: 'Aucune entrée complétée cette semaine.',
+    editGoals: 'Modifier les objectifs',
+    weeklyGoalLabel: 'Objectif hebdomadaire (heures)',
+    monthlyGoalLabel: 'Objectif mensuel (heures)',
+    goalPlaceholder: 'Aucun objectif défini',
+    saveGoals: 'Enregistrer',
+    setGoalPrompt: 'Définissez un objectif pour suivre votre progression',
+    ofGoal: "sur objectif de {hours}h",
   },
 }
