@@ -4,11 +4,9 @@
  * network round-trip.
  */
 import { create } from 'zustand'
-import type { Database } from '@/types/database.types'
+import type { TimeEntryWithProject } from '@/types/database.types'
 
-type RunningEntry = Database['public']['Tables']['time_entries']['Row'] & {
-  project?: unknown
-}
+type RunningEntry = TimeEntryWithProject
 
 interface TimerState {
   running:      RunningEntry | null

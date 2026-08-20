@@ -3,9 +3,8 @@
 import { useState } from 'react'
 import { useProjects, useCreateProject, useUpdateProject, useDeleteProject } from '@/hooks/useProjects'
 import { useClients } from '@/hooks/useClients'
-import type { Project } from '@/types/database.types'
-
-type ProjectWithClient = Project & { client?: { name: string } }
+import type { ProjectWithClient } from '@/types/database.types'
+import { getErrorMessage } from '@/lib/errors'
 
 function ProjectRow({ p, clients }: { p: ProjectWithClient; clients: { id: string; name: string }[] }) {
   const updateMut = useUpdateProject()
@@ -74,7 +73,7 @@ function ProjectRow({ p, clients }: { p: ProjectWithClient; clients: { id: strin
             Actif
           </label>
           {updateMut.isError && (
-            <p className="text-red-600 text-xs">{String(updateMut.error)}</p>
+            <p role="alert" className="text-red-600 text-xs">{getErrorMessage(updateMut.error)}</p>
           )}
           <div className="flex gap-2 pt-1">
             <button
@@ -192,8 +191,8 @@ export function ProjectList() {
           {createMut.isPending ? 'Creating…' : 'Add Project'}
         </button>
         {createMut.isError && (
-          <p className="text-red-600 text-xs bg-red-50 border border-red-200 rounded-lg px-3 py-2">
-            {String(createMut.error)}
+          <p role="alert" className="text-red-600 text-xs bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+            {getErrorMessage(createMut.error)}
           </p>
         )}
       </form>

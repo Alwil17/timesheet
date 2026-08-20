@@ -14,23 +14,25 @@ import type { Database } from '@/types/database.types'
 type TimeEntryInsert = Database['public']['Tables']['time_entries']['Insert']
 type TimeEntryUpdate = Database['public']['Tables']['time_entries']['Update']
 
-export const entryKeys = {
-  all:         ['time_entries'] as const,
-  running:     ['time_entries', 'running'] as const,
-  byProject:   (projectId: string) => ['time_entries', 'project', projectId] as const,
-  range:       (from: string, to: string) => ['time_entries', 'range', from, to] as const,
-}
-
-export const useTimeEntries = (opts?: {
+type TimeEntriesOpts = {
   projectId?: string
   from?: string
   to?: string
   limit?: number
-}) =>
+}
+
+export const entryKeys = {
+  all:         ['time_entries'] as const,
+  running:     ['time_entries', 'running'] as const,
+  /** Cache key that includes every param the query is actually filtered by, so
+   *  differently-scoped lists (e.g. a date range vs. a recent-N list) never collide. */
+  list:        (opts?: TimeEntriesOpts) =>
+    ['time_entries', 'list', opts?.projectId ?? null, opts?.from ?? null, opts?.to ?? null, opts?.limit ?? null] as const,
+}
+
+export const useTimeEntries = (opts?: TimeEntriesOpts) =>
   useQuery({
-    queryKey: opts?.projectId
-      ? entryKeys.byProject(opts.projectId)
-      : entryKeys.all,
+    queryKey: entryKeys.list(opts),
     queryFn: () => getTimeEntries(opts),
   })
 
@@ -70,11 +72,14 @@ export const useStopTimer = () => {
       qc.invalidateQueries({ queryKey: entryKeys.running })
       qc.invalidateQueries({ queryKey: entryKeys.all })
     },
-    onError: (_, id) => {
-      // Restore running entry on error
-      getRunningEntry().then((entry) => {
-        if (entry) useTimerStore.getState().setRunning(entry)
-      })
+    onError: () => {
+      // Restore running entry on error (best-effort — if this also fails, the
+      // periodic useRunningEntry poll will eventually reconcile local state)
+      getRunningEntry()
+        .then((entry) => {
+          if (entry) useTimerStore.getState().setRunning(entry)
+        })
+        .catch(console.error)
     },
   })
 }

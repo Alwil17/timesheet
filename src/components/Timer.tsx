@@ -5,6 +5,7 @@ import { useProjects }         from '@/hooks/useProjects'
 import { useStartTimer, useStopTimer, useRunningEntry } from '@/hooks/useTimeEntries'
 import { useTimerStore }       from '@/store/timerStore'
 import { formatElapsed }       from '@/lib/format'
+import { getErrorMessage }     from '@/lib/errors'
 
 export function Timer() {
   const { data: projects = [] } = useProjects()
@@ -23,7 +24,7 @@ export function Timer() {
 
   // Sync server state into local store on mount / when cache refreshes
   useEffect(() => {
-    if (serverRunning) setRunning(serverRunning as Parameters<typeof setRunning>[0])
+    if (serverRunning) setRunning(serverRunning)
     else clearRunning()
   }, [serverRunning]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -44,7 +45,7 @@ export function Timer() {
 
       {running ? (
         <div className="flex flex-col items-center gap-4">
-          <p className="text-gray-500 text-sm">Running on <span className="font-medium text-gray-700">{(running as any).project?.name ?? 'Unknown project'}</span></p>
+          <p className="text-gray-500 text-sm">Running on <span className="font-medium text-gray-700">{running.project?.name ?? 'Unknown project'}</span></p>
           <div className="font-mono text-5xl font-bold text-brand-600 tabular-nums tracking-tighter">
             {formatElapsed(elapsedMs)}
           </div>
@@ -88,8 +89,8 @@ export function Timer() {
             {start.isPending ? 'Starting…' : 'Start Timer'}
           </button>
           {start.isError && (
-            <p className="text-red-600 text-xs bg-red-50 border border-red-200 rounded-lg px-3 py-2">
-              {String(start.error)}
+            <p role="alert" className="text-red-600 text-xs bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+              {getErrorMessage(start.error)}
             </p>
           )}
         </div>

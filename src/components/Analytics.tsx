@@ -4,7 +4,7 @@ import { useMemo } from 'react'
 import { useTimeEntries } from '@/hooks/useTimeEntries'
 import { formatDuration }  from '@/lib/format'
 import { startOfMonth, endOfMonth, format } from 'date-fns'
-import type { TimeEntry }  from '@/types/database.types'
+import type { TimeEntryWithProject } from '@/types/database.types'
 
 export function Analytics() {
   const now   = new Date()
@@ -16,7 +16,7 @@ export function Analytics() {
   const stats = useMemo(() => {
     const byProject: Record<string, { name: string; client: string; seconds: number }> = {}
 
-    for (const e of entries as (TimeEntry & { project?: { name: string; client?: { name: string } } })[]) {
+    for (const e of entries as TimeEntryWithProject[]) {
       if (!e.duration_seconds || !e.project) continue
       const key = e.project.name
       if (!byProject[key]) {

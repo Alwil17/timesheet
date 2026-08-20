@@ -12,9 +12,9 @@ export function StaleTimerBanner() {
 
   if (autoStopped) {
     return (
-      <div className="bg-orange-50 border border-orange-200 rounded-xl px-4 py-3 flex items-start justify-between gap-4">
+      <div role="alert" className="bg-orange-50 border border-orange-200 rounded-xl px-4 py-3 flex items-start justify-between gap-4">
         <div>
-          <p className="text-sm font-semibold text-orange-700">⏹ Timer auto-arrêté</p>
+          <p className="text-sm font-semibold text-orange-700"><span aria-hidden="true">⏹</span> Timer auto-arrêté</p>
           <p className="text-xs text-orange-600 mt-0.5">
             Un timer actif depuis plus de {MAX_TIMER_HOURS}h a été automatiquement arrêté.
             Vérifiez vos entrées et ajustez l'heure de fin si nécessaire.
@@ -32,9 +32,9 @@ export function StaleTimerBanner() {
 
   if (isWarning && running) {
     return (
-      <div className="bg-yellow-50 border border-yellow-200 rounded-xl px-4 py-3 flex items-start justify-between gap-4">
+      <div role="alert" className="bg-yellow-50 border border-yellow-200 rounded-xl px-4 py-3 flex items-start justify-between gap-4">
         <div>
-          <p className="text-sm font-semibold text-yellow-700">⚠️ Timer en cours depuis plus de {WARN_TIMER_HOURS}h</p>
+          <p className="text-sm font-semibold text-yellow-700"><span aria-hidden="true">⚠️</span> Timer en cours depuis plus de {WARN_TIMER_HOURS}h</p>
           <p className="text-xs text-yellow-600 mt-0.5">
             Avez-vous oublié d'arrêter votre timer ? Il sera automatiquement arrêté après {MAX_TIMER_HOURS}h.
           </p>

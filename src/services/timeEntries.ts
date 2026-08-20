@@ -16,8 +16,7 @@ export const getTimeEntries = async (opts?: {
     .from('time_entries')
     .select(`
       *,
-      project:projects(*, client:clients(*)),
-      tags:time_entry_tags(tag:tags(*))
+      project:projects(*, client:clients(*))
     `)
     .order('start_time', { ascending: false })
 

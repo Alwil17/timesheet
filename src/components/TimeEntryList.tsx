@@ -4,22 +4,18 @@ import { useState }                                   from 'react'
 import { useTimeEntries, useUpdateEntry, useDeleteEntry } from '@/hooks/useTimeEntries'
 import { useProjects }                                from '@/hooks/useProjects'
 import { formatDuration }                             from '@/lib/format'
+import { getErrorMessage }                            from '@/lib/errors'
 import { format, parseISO }                           from 'date-fns'
-import type { TimeEntry }                             from '@/types/database.types'
-
-type EntryWithRelations = TimeEntry & {
-  project?: { id: string; name: string; client?: { name: string } }
-}
+import type { TimeEntryWithProject as EntryWithRelations, Project } from '@/types/database.types'
 
 /** Converts an ISO string to the value expected by <input type="datetime-local"> */
 function toDatetimeLocal(iso: string) {
   return format(parseISO(iso), "yyyy-MM-dd'T'HH:mm")
 }
 
-function EntryRow({ e }: { e: EntryWithRelations }) {
+function EntryRow({ e, projects }: { e: EntryWithRelations; projects: Project[] }) {
   const updateMut = useUpdateEntry()
   const deleteMut = useDeleteEntry()
-  const { data: projects = [] } = useProjects()
 
   const [editing,      setEditing]      = useState(false)
   const [projectId,    setProjectId]    = useState(e.project_id)
@@ -60,8 +56,9 @@ function EntryRow({ e }: { e: EntryWithRelations }) {
         <form onSubmit={handleSave} className="space-y-3">
           {/* Project (read-only during edit — changing project would shift billing) */}
           <div>
-            <label className="text-xs text-gray-500 block mb-1">Projet</label>
+            <label htmlFor={`entry-project-${e.id}`} className="text-xs text-gray-500 block mb-1">Projet</label>
             <select
+              id={`entry-project-${e.id}`}
               value={projectId}
               onChange={(e) => setProjectId(e.target.value)}
               className="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
@@ -74,8 +71,9 @@ function EntryRow({ e }: { e: EntryWithRelations }) {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs text-gray-500 block mb-1">Début</label>
+              <label htmlFor={`entry-start-${e.id}`} className="text-xs text-gray-500 block mb-1">Début</label>
               <input
+                id={`entry-start-${e.id}`}
                 required
                 type="datetime-local"
                 value={startTime}
@@ -84,19 +82,21 @@ function EntryRow({ e }: { e: EntryWithRelations }) {
               />
             </div>
             <div>
-              <label className="text-xs text-gray-500 block mb-1">Fin</label>
+              <label htmlFor={`entry-end-${e.id}`} className="text-xs text-gray-500 block mb-1">Fin</label>
               <input
+                id={`entry-end-${e.id}`}
                 type="datetime-local"
                 value={endTime}
                 onChange={(ev) => setEndTime(ev.target.value)}
                 min={startTime}
+                aria-invalid={!!endTime && new Date(endTime) <= new Date(startTime)}
                 className="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
               />
             </div>
           </div>
 
           {endTime && new Date(endTime) <= new Date(startTime) && (
-            <p className="text-xs text-red-500">La fin doit être après le début.</p>
+            <p role="alert" className="text-xs text-red-500">La fin doit être après le début.</p>
           )}
 
           <input
@@ -118,7 +118,7 @@ function EntryRow({ e }: { e: EntryWithRelations }) {
           </label>
 
           {updateMut.isError && (
-            <p className="text-xs text-red-500">{String(updateMut.error)}</p>
+            <p role="alert" className="text-xs text-red-500">{getErrorMessage(updateMut.error)}</p>
           )}
 
           <div className="flex gap-2">
@@ -188,6 +188,7 @@ function EntryRow({ e }: { e: EntryWithRelations }) {
           <button
             onClick={() => deleteMut.mutate(e.id)}
             disabled={deleteMut.isPending}
+            aria-label={`Supprimer l'entrée ${e.description ?? e.project?.name ?? ''}`.trim()}
             className="text-red-400 hover:text-red-600 text-xs font-medium transition-colors disabled:opacity-50"
           >
             Supprimer
@@ -200,6 +201,7 @@ function EntryRow({ e }: { e: EntryWithRelations }) {
 
 export function TimeEntryList({ projectId }: { projectId?: string }) {
   const { data: entries = [], isLoading } = useTimeEntries({ projectId, limit: 50 })
+  const { data: projects = [] } = useProjects()
 
   if (isLoading) return <p className="text-gray-500 text-sm">Chargement…</p>
 
@@ -209,7 +211,7 @@ export function TimeEntryList({ projectId }: { projectId?: string }) {
         <li className="text-gray-400 text-sm">Aucune entrée de temps.</li>
       )}
       {(entries as EntryWithRelations[]).map((e) => (
-        <EntryRow key={e.id} e={e} />
+        <EntryRow key={e.id} e={e} projects={projects} />
       ))}
     </ul>
   )

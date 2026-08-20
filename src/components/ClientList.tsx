@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useClients, useCreateClient, useUpdateClient, useDeleteClient } from '@/hooks/useClients'
 import type { Client } from '@/types/database.types'
+import { getErrorMessage } from '@/lib/errors'
 
 function ClientRow({ c }: { c: Client }) {
   const updateMut = useUpdateClient()
@@ -48,7 +49,7 @@ function ClientRow({ c }: { c: Client }) {
             Internal client
           </label>
           {updateMut.isError && (
-            <p className="text-red-600 text-xs">{String(updateMut.error)}</p>
+            <p role="alert" className="text-red-600 text-xs">{getErrorMessage(updateMut.error)}</p>
           )}
           <div className="flex gap-2 pt-1">
             <button
@@ -153,8 +154,8 @@ export function ClientList() {
           {createMut.isPending ? 'Creating…' : 'Add Client'}
         </button>
         {createMut.isError && (
-          <p className="text-red-600 text-xs bg-red-50 border border-red-200 rounded-lg px-3 py-2">
-            {String(createMut.error)}
+          <p role="alert" className="text-red-600 text-xs bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+            {getErrorMessage(createMut.error)}
           </p>
         )}
       </form>

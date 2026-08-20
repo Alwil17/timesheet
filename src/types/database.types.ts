@@ -225,8 +225,7 @@ export type Tag         = Database['public']['Tables']['tags']['Row']
 export type TimeEntryTag = Database['public']['Tables']['time_entry_tags']['Row']
 
 // Extended types with relations
-export type ProjectWithClient = Project & { client: Client }
+export type ProjectWithClient = Project & { client?: Client }
 export type TimeEntryWithProject = TimeEntry & {
-  project: ProjectWithClient
-  tags: Tag[]
+  project?: ProjectWithClient
 }

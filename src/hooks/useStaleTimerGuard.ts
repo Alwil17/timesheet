@@ -22,18 +22,20 @@ export function useStaleTimerGuard() {
   const [isWarning, setIsWarning]   = useState(false)
   const [autoStopped, setAutoStopped] = useState(false)
 
+  const markAutoStopped = () => {
+    clearRunning()
+    qc.invalidateQueries({ queryKey: entryKeys.all })
+    qc.invalidateQueries({ queryKey: entryKeys.running })
+    setAutoStopped(true)
+  }
+
   // On mount: purge any stale timers in the DB (handles the case where the
   // user closed the browser without stopping their timer)
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!session) return
       autoStopStaleTimers().then((stopped) => {
-        if (stopped.length > 0) {
-          clearRunning()
-          qc.invalidateQueries({ queryKey: entryKeys.all })
-          qc.invalidateQueries({ queryKey: entryKeys.running })
-          setAutoStopped(true)
-        }
+        if (stopped.length > 0) markAutoStopped()
       }).catch(console.error)
     })
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
@@ -49,12 +51,7 @@ export function useStaleTimerGuard() {
       const elapsed = Date.now() - new Date(running.start_time).getTime()
       setIsWarning(elapsed >= HOURS_MS(WARN_TIMER_HOURS))
 
-      if (elapsed >= HOURS_MS(MAX_TIMER_HOURS)) {
-        clearRunning()
-        qc.invalidateQueries({ queryKey: entryKeys.all })
-        qc.invalidateQueries({ queryKey: entryKeys.running })
-        setAutoStopped(true)
-      }
+      if (elapsed >= HOURS_MS(MAX_TIMER_HOURS)) markAutoStopped()
     }
 
     check() // run immediately
