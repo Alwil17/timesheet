@@ -5,10 +5,12 @@ import { useProjects, useCreateProject, useUpdateProject, useDeleteProject } fro
 import { useClients } from '@/hooks/useClients'
 import type { ProjectWithClient } from '@/types/database.types'
 import { getErrorMessage } from '@/lib/errors'
+import { useT } from '@/i18n/LocaleProvider'
 
 function ProjectRow({ p, clients }: { p: ProjectWithClient; clients: { id: string; name: string }[] }) {
   const updateMut = useUpdateProject()
   const deleteMut = useDeleteProject()
+  const t = useT()
   const [editing,    setEditing]    = useState(false)
   const [name,       setName]       = useState(p.name)
   const [clientId,   setClientId]   = useState(p.client_id)
@@ -63,14 +65,14 @@ function ProjectRow({ p, clients }: { p: ProjectWithClient; clients: { id: strin
             type="number"
             min={0}
             step={0.01}
-            placeholder="Taux horaire (optionnel)"
+            placeholder={t('projects.ratePlaceholder')}
             value={hourlyRate}
             onChange={(e) => setHourlyRate(e.target.value)}
             className="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
           />
           <label className="flex items-center gap-2 text-sm text-gray-600">
             <input type="checkbox" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} className="rounded" />
-            Actif
+            {t('projects.active')}
           </label>
           {updateMut.isError && (
             <p role="alert" className="text-red-600 text-xs">{getErrorMessage(updateMut.error)}</p>
@@ -81,14 +83,14 @@ function ProjectRow({ p, clients }: { p: ProjectWithClient; clients: { id: strin
               disabled={updateMut.isPending}
               className="bg-brand-500 hover:bg-brand-600 text-white px-3 py-1 rounded-lg text-xs font-medium transition-colors disabled:opacity-50"
             >
-              {updateMut.isPending ? 'Saving…' : 'Save'}
+              {updateMut.isPending ? t('common.saving') : t('common.save')}
             </button>
             <button
               type="button"
               onClick={handleCancel}
               className="text-gray-500 hover:text-gray-700 px-3 py-1 rounded-lg text-xs font-medium border border-gray-200 transition-colors"
             >
-              Cancel
+              {t('common.cancel')}
             </button>
           </div>
         </form>
@@ -107,20 +109,20 @@ function ProjectRow({ p, clients }: { p: ProjectWithClient; clients: { id: strin
       </div>
       <div className="flex items-center gap-3">
         {!p.is_active && (
-          <span className="text-xs bg-gray-100 text-gray-400 px-2 py-0.5 rounded-full">Inactif</span>
+          <span className="text-xs bg-gray-100 text-gray-400 px-2 py-0.5 rounded-full">{t('projects.inactive')}</span>
         )}
         <button
           onClick={() => setEditing(true)}
           className="text-brand-500 hover:text-brand-700 text-xs font-medium transition-colors"
         >
-          Edit
+          {t('common.edit')}
         </button>
         <button
           onClick={() => deleteMut.mutate(p.id)}
           disabled={deleteMut.isPending}
           className="text-red-400 hover:text-red-600 text-xs font-medium transition-colors disabled:opacity-50"
         >
-          Delete
+          {t('common.delete')}
         </button>
       </div>
     </li>
@@ -131,6 +133,7 @@ export function ProjectList() {
   const { data: projects = [], isLoading } = useProjects()
   const { data: clients  = []            } = useClients()
   const createMut = useCreateProject()
+  const t = useT()
 
   const [name,        setName]       = useState('')
   const [clientId,    setClientId]   = useState('')
@@ -149,16 +152,16 @@ export function ProjectList() {
     )
   }
 
-  if (isLoading) return <p className="text-gray-500 text-sm">Loading projects…</p>
+  if (isLoading) return <p className="text-gray-500 text-sm">{t('projects.loading')}</p>
 
   return (
     <div className="space-y-6">
       {/* Create form */}
       <form onSubmit={handleCreate} className="bg-white border border-gray-200 rounded-xl p-4 space-y-3">
-        <h3 className="font-medium text-gray-700">New Project</h3>
+        <h3 className="font-medium text-gray-700">{t('projects.newProject')}</h3>
         <input
           required
-          placeholder="Project name"
+          placeholder={t('projects.namePlaceholder')}
           value={name}
           onChange={(e) => setName(e.target.value)}
           className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
@@ -169,7 +172,7 @@ export function ProjectList() {
           onChange={(e) => setClientId(e.target.value)}
           className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
         >
-          <option value="">Select client…</option>
+          <option value="">{t('projects.selectClient')}</option>
           {clients.map((c) => (
             <option key={c.id} value={c.id}>{c.name}</option>
           ))}
@@ -178,7 +181,7 @@ export function ProjectList() {
           type="number"
           min={0}
           step={0.01}
-          placeholder="Taux horaire (optionnel)"
+          placeholder={t('projects.ratePlaceholder')}
           value={hourlyRate}
           onChange={(e) => setHourlyRate(e.target.value)}
           className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
@@ -188,7 +191,7 @@ export function ProjectList() {
           disabled={createMut.isPending}
           className="bg-brand-500 hover:bg-brand-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
         >
-          {createMut.isPending ? 'Creating…' : 'Add Project'}
+          {createMut.isPending ? t('projects.creating') : t('projects.add')}
         </button>
         {createMut.isError && (
           <p role="alert" className="text-red-600 text-xs bg-red-50 border border-red-200 rounded-lg px-3 py-2">
@@ -200,7 +203,7 @@ export function ProjectList() {
       {/* List */}
       <ul className="space-y-2">
         {projects.length === 0 && (
-          <li className="text-gray-400 text-sm">No projects yet.</li>
+          <li className="text-gray-400 text-sm">{t('projects.empty')}</li>
         )}
         {projects.map((p) => (
           <ProjectRow key={p.id} p={p as ProjectWithClient} clients={clients} />
