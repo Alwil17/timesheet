@@ -4,6 +4,9 @@ import { getLastProjectId } from '../lib/lastProject'
 import { initIdleDetection } from './idleDetection'
 
 const ALARM_NAME = 'timesheet-tick'
+const REMINDER_ALARM_NAME = 'timesheet-forgot-reminder'
+const REMINDER_NOTIFICATION_ID = 'timesheet-forgot-notification'
+const WORK_HOURS = { start: 9, end: 18 } // local time, Mon–Fri
 
 initIdleDetection()
 
@@ -52,10 +55,45 @@ chrome.contextMenus.onClicked.addListener((info) => {
 // chrome.alarms wakes this worker on a schedule instead.
 chrome.runtime.onInstalled.addListener(() => {
   chrome.alarms.create(ALARM_NAME, { periodInMinutes: 1 })
+  chrome.alarms.create(REMINDER_ALARM_NAME, { periodInMinutes: 30 })
 })
 
 chrome.alarms.onAlarm.addListener((alarm) => {
   if (alarm.name === ALARM_NAME) updateBadge()
+  if (alarm.name === REMINDER_ALARM_NAME) checkForgotToTrack()
+})
+
+function isWorkHours(): boolean {
+  const now = new Date()
+  const day = now.getDay()
+  if (day === 0 || day === 6) return false
+  return now.getHours() >= WORK_HOURS.start && now.getHours() < WORK_HOURS.end
+}
+
+async function checkForgotToTrack() {
+  if (!isWorkHours()) return
+
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session) return
+
+  const running = await getRunningEntry()
+  if (running) return
+
+  chrome.notifications.create(REMINDER_NOTIFICATION_ID, {
+    type: 'basic',
+    iconUrl: 'public/icon-128.png',
+    title: 'No timer running',
+    message: "You haven't tracked time in a while. Start a timer?",
+    buttons: [{ title: 'Start last project' }],
+  })
+}
+
+chrome.notifications.onButtonClicked.addListener(async (notificationId) => {
+  if (notificationId !== REMINDER_NOTIFICATION_ID) return
+  const lastProjectId = await getLastProjectId()
+  if (lastProjectId) await startTimer(lastProjectId)
+  chrome.notifications.clear(REMINDER_NOTIFICATION_ID)
+  updateBadge()
 })
 
 async function updateBadge() {
