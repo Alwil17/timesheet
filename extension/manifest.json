@@ -20,6 +20,6 @@
     "service_worker": "src/background/service-worker.ts",
     "type": "module"
   },
-  "permissions": ["storage", "alarms"],
+  "permissions": ["storage", "alarms", "idle", "notifications"],
   "host_permissions": ["https://*.supabase.co/*"]
 }

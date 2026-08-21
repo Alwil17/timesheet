@@ -36,3 +36,7 @@ Thumbs.db
 
 # Misc
 .vercel
+
+
+# Clockify extension source, kept locally for reference only
+browser-extension/

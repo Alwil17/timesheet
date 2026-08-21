@@ -34,10 +34,10 @@ export const startTimer = async (projectId: string, description?: string) => {
   return data
 }
 
-export const stopTimer = async (id: string) => {
+export const stopTimer = async (id: string, endTime = new Date()) => {
   const { data, error } = await supabase
     .from('time_entries')
-    .update({ end_time: new Date().toISOString() })
+    .update({ end_time: endTime.toISOString() })
     .eq('id', id)
     .select()
     .single()

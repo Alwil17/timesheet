@@ -1,7 +1,10 @@
 import { supabase } from '../lib/supabaseClient'
 import { getRunningEntry } from '../lib/timerService'
+import { initIdleDetection } from './idleDetection'
 
 const ALARM_NAME = 'timesheet-tick'
+
+initIdleDetection()
 
 // MV3 service workers unload after ~30s idle — no persistent setInterval.
 // chrome.alarms wakes this worker on a schedule instead.
