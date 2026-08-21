@@ -17,7 +17,7 @@ export function Popup() {
   }, [])
 
   if (session === 'loading') {
-    return <p style={{ padding: 16, fontSize: 13, color: '#6b7280' }}>Loading…</p>
+    return <p style={{ padding: 16, fontSize: 13, color: 'var(--text-faint)' }}>Loading…</p>
   }
 
   return session === 'in' ? <TimerScreen /> : <LoginScreen onLoggedIn={() => setSession('in')} />

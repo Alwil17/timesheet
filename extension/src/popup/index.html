@@ -4,7 +4,33 @@
   <meta charset="utf-8" />
   <title>Timesheet</title>
   <style>
-    body { margin: 0; width: 280px; font-family: system-ui, -apple-system, sans-serif; }
+    :root {
+      --bg: #ffffff;
+      --text: #111827;
+      --text-muted: #374151;
+      --text-faint: #6b7280;
+      --text-faintest: #9ca3af;
+      --border: #d1d5db;
+      --card-border: #e5e7eb;
+      --card-bg: #ffffff;
+      --error: #dc2626;
+      --accent-green: #16a34a;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #1f2937;
+        --text: #f3f4f6;
+        --text-muted: #d1d5db;
+        --text-faint: #9ca3af;
+        --text-faintest: #6b7280;
+        --border: #4b5563;
+        --card-border: #374151;
+        --card-bg: #111827;
+        --error: #f87171;
+        --accent-green: #22c55e;
+      }
+    }
+    body { margin: 0; width: 280px; font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); }
   </style>
 </head>
 <body>
