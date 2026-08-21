@@ -1,12 +1,27 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
-import { getRunningEntry, getProjects, startTimer, stopTimer } from '../lib/timerService'
+import { getRunningEntry, getProjects, getRecentEntries, startTimer, stopTimer } from '../lib/timerService'
+import { getLastProjectId } from '../lib/lastProject'
 import { formatElapsed } from '../lib/format'
 import type { ProjectWithClient, TimeEntryWithProject } from '../../../src/types/database.types'
+
+/** Collapse the recent-entries list down to distinct project+description combos. */
+function dedupeRecent(entries: TimeEntryWithProject[]): TimeEntryWithProject[] {
+  const seen = new Set<string>()
+  const result: TimeEntryWithProject[] = []
+  for (const entry of entries) {
+    const key = `${entry.project_id}::${entry.description ?? ''}`
+    if (seen.has(key)) continue
+    seen.add(key)
+    result.push(entry)
+  }
+  return result
+}
 
 export function TimerScreen() {
   const [running, setRunning] = useState<TimeEntryWithProject | null>(null)
   const [projects, setProjects] = useState<ProjectWithClient[]>([])
+  const [recent, setRecent] = useState<TimeEntryWithProject[]>([])
   const [projectId, setProjectId] = useState('')
   const [description, setDescription] = useState('')
   const [elapsedMs, setElapsedMs] = useState(0)
@@ -15,10 +30,21 @@ export function TimerScreen() {
 
   const refresh = async () => {
     try {
-      const [runningEntry, projectList] = await Promise.all([getRunningEntry(), getProjects()])
+      const [runningEntry, projectList, recentEntries, lastProjectId] = await Promise.all([
+        getRunningEntry(),
+        getProjects(),
+        getRecentEntries(),
+        getLastProjectId(),
+      ])
       setRunning(runningEntry)
       setProjects(projectList)
-      if (!runningEntry && projectList.length > 0) setProjectId((prev) => prev || projectList[0].id)
+      setRecent(dedupeRecent(recentEntries).slice(0, 3))
+      if (!runningEntry && projectList.length > 0) {
+        const preferred = lastProjectId && projectList.some((p) => p.id === lastProjectId)
+          ? lastProjectId
+          : projectList[0].id
+        setProjectId((prev) => prev || preferred)
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err))
     } finally {
@@ -45,6 +71,16 @@ export function TimerScreen() {
       const entry = await startTimer(projectId, description || undefined)
       setRunning(entry)
       setDescription('')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err))
+    }
+  }
+
+  const handleContinue = async (entry: TimeEntryWithProject) => {
+    setError(null)
+    try {
+      const started = await startTimer(entry.project_id, entry.description ?? undefined)
+      setRunning(started)
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err))
     }
@@ -131,6 +167,34 @@ export function TimerScreen() {
           >
             Start
           </button>
+
+          {recent.length > 0 && (
+            <div style={{ marginTop: 4 }}>
+              <p style={{ fontSize: 11, color: '#9ca3af', margin: '0 0 4px' }}>Recent</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                {recent.map((entry) => (
+                  <button
+                    key={entry.id}
+                    onClick={() => handleContinue(entry)}
+                    style={{
+                      textAlign: 'left',
+                      padding: '6px 8px',
+                      borderRadius: 8,
+                      border: '1px solid #e5e7eb',
+                      background: 'white',
+                      cursor: 'pointer',
+                      fontSize: 12,
+                    }}
+                  >
+                    <div style={{ fontWeight: 600, color: '#111827' }}>{entry.project?.name ?? 'Unknown project'}</div>
+                    {entry.description && (
+                      <div style={{ color: '#6b7280', fontSize: 11 }}>{entry.description}</div>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </>
       )}
     </div>

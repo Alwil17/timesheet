@@ -1,4 +1,5 @@
 import { supabase } from './supabaseClient'
+import { setLastProjectId } from './lastProject'
 
 export const getRunningEntry = async () => {
   const { data: { user } } = await supabase.auth.getUser()
@@ -31,6 +32,7 @@ export const startTimer = async (projectId: string, description?: string) => {
     .single()
 
   if (error) throw error
+  await setLastProjectId(projectId)
   return data
 }
 
@@ -50,6 +52,23 @@ export const getProjects = async () => {
     .from('projects')
     .select('*, client:clients(*)')
     .order('name')
+  if (error) throw error
+  return data ?? []
+}
+
+/** Most recent finished entries, for one-click "continue" in the popup. */
+export const getRecentEntries = async (limit = 5) => {
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return []
+
+  const { data, error } = await supabase
+    .from('time_entries')
+    .select('*, project:projects(*, client:clients(*))')
+    .eq('user_id', user.id)
+    .not('end_time', 'is', null)
+    .order('start_time', { ascending: false })
+    .limit(limit)
+
   if (error) throw error
   return data ?? []
 }
