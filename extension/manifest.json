@@ -26,6 +26,6 @@
       "description": "Start/stop the current timer"
     }
   },
-  "permissions": ["storage", "alarms", "idle", "notifications"],
+  "permissions": ["storage", "alarms", "idle", "notifications", "contextMenus"],
   "host_permissions": ["https://*.supabase.co/*"]
 }

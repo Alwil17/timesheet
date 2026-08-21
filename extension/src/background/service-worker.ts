@@ -7,9 +7,7 @@ const ALARM_NAME = 'timesheet-tick'
 
 initIdleDetection()
 
-chrome.commands.onCommand.addListener(async (command) => {
-  if (command !== 'toggle-timer') return
-
+async function toggleTimer() {
   const { data: { session } } = await supabase.auth.getSession()
   if (!session) return
 
@@ -30,6 +28,24 @@ chrome.commands.onCommand.addListener(async (command) => {
     await startTimer(lastProjectId)
   }
   updateBadge()
+}
+
+chrome.commands.onCommand.addListener((command) => {
+  if (command === 'toggle-timer') toggleTimer()
+})
+
+const CONTEXT_MENU_ID = 'timesheet-toggle-timer'
+
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.contextMenus.create({
+    id: CONTEXT_MENU_ID,
+    title: 'Start/stop Timesheet timer',
+    contexts: ['page', 'action'],
+  })
+})
+
+chrome.contextMenus.onClicked.addListener((info) => {
+  if (info.menuItemId === CONTEXT_MENU_ID) toggleTimer()
 })
 
 // MV3 service workers unload after ~30s idle — no persistent setInterval.
