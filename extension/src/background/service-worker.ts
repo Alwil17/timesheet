@@ -1,10 +1,36 @@
 import { supabase } from '../lib/supabaseClient'
-import { getRunningEntry } from '../lib/timerService'
+import { getRunningEntry, startTimer, stopTimer } from '../lib/timerService'
+import { getLastProjectId } from '../lib/lastProject'
 import { initIdleDetection } from './idleDetection'
 
 const ALARM_NAME = 'timesheet-tick'
 
 initIdleDetection()
+
+chrome.commands.onCommand.addListener(async (command) => {
+  if (command !== 'toggle-timer') return
+
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session) return
+
+  const running = await getRunningEntry()
+  if (running) {
+    await stopTimer(running.id)
+  } else {
+    const lastProjectId = await getLastProjectId()
+    if (!lastProjectId) {
+      chrome.notifications.create('timesheet-no-default-project', {
+        type: 'basic',
+        iconUrl: 'public/icon-128.png',
+        title: 'No project selected yet',
+        message: 'Open the Timesheet popup once to pick a project — after that the shortcut can start it directly.',
+      })
+      return
+    }
+    await startTimer(lastProjectId)
+  }
+  updateBadge()
+})
 
 // MV3 service workers unload after ~30s idle — no persistent setInterval.
 // chrome.alarms wakes this worker on a schedule instead.

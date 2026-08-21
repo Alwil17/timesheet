@@ -20,6 +20,12 @@
     "service_worker": "src/background/service-worker.ts",
     "type": "module"
   },
+  "commands": {
+    "toggle-timer": {
+      "suggested_key": { "default": "Ctrl+Shift+U" },
+      "description": "Start/stop the current timer"
+    }
+  },
   "permissions": ["storage", "alarms", "idle", "notifications"],
   "host_permissions": ["https://*.supabase.co/*"]
 }
