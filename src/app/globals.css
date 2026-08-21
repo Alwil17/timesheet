@@ -11,3 +11,12 @@ body {
   color: var(--foreground);
   background: var(--background);
 }
+
+@media print {
+  nav, form, button, .no-print {
+    display: none !important;
+  }
+  body {
+    background: white;
+  }
+}

@@ -1,8 +1,16 @@
 import { supabase } from '@/lib/supabase'
-import type { Database } from '@/types/database.types'
+import type { Database, TimeEntryWithProject, Tag } from '@/types/database.types'
 
 type TimeEntryInsert = Database['public']['Tables']['time_entries']['Insert']
 type TimeEntryUpdate = Database['public']['Tables']['time_entries']['Update']
+
+const ENTRY_SELECT = `*, project:projects(*, client:clients(*)), time_entry_tags(tag:tags(*))`
+
+/** Flattens the nested time_entry_tags(tag:tags(*)) join into a plain tags[] array. */
+function withFlatTags(row: Record<string, unknown>): TimeEntryWithProject {
+  const { time_entry_tags, ...rest } = row as { time_entry_tags?: { tag: Tag }[] } & Record<string, unknown>
+  return { ...rest, tags: (time_entry_tags ?? []).map((t) => t.tag) } as TimeEntryWithProject
+}
 
 // ─── Fetch ────────────────────────────────────────────────────
 
@@ -14,10 +22,7 @@ export const getTimeEntries = async (opts?: {
 }) => {
   let query = supabase
     .from('time_entries')
-    .select(`
-      *,
-      project:projects(*, client:clients(*))
-    `)
+    .select(ENTRY_SELECT)
     .order('start_time', { ascending: false })
 
   if (opts?.projectId) query = query.eq('project_id', opts.projectId)
@@ -27,7 +32,7 @@ export const getTimeEntries = async (opts?: {
 
   const { data, error } = await query
   if (error) throw error
-  return data ?? []
+  return (data ?? []).map(withFlatTags)
 }
 
 /** Returns the currently running timer for the authenticated user, or null. */
@@ -37,13 +42,13 @@ export const getRunningEntry = async () => {
 
   const { data, error } = await supabase
     .from('time_entries')
-    .select(`*, project:projects(*, client:clients(*))`)
+    .select(ENTRY_SELECT)
     .eq('user_id', user.id)
     .is('end_time', null)
     .maybeSingle()
 
   if (error) throw error
-  return data
+  return data ? withFlatTags(data) : null
 }
 
 // ─── Timer ────────────────────────────────────────────────────

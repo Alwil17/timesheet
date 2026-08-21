@@ -234,4 +234,5 @@ export type TimeEntryTag = Database['public']['Tables']['time_entry_tags']['Row'
 export type ProjectWithClient = Project & { client?: Client }
 export type TimeEntryWithProject = TimeEntry & {
   project?: ProjectWithClient
+  tags?: Tag[]
 }

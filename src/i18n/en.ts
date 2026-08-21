@@ -53,6 +53,17 @@ export const en = {
   },
   entries: {
     title: 'Time Entries',
+    exportCsv: 'Export CSV',
+    print: 'Print / Save PDF',
+  },
+  tags: {
+    heading: 'Tags',
+    namePlaceholder: 'New tag name',
+    add: 'Add Tag',
+    creating: 'Creating…',
+    empty: 'No tags yet.',
+    addToEntry: 'Add tag…',
+    remove: 'Remove tag',
   },
   clients: {
     title: 'Clients',

@@ -55,6 +55,17 @@ export const fr: Dictionary = {
   },
   entries: {
     title: 'Entrées de temps',
+    exportCsv: 'Exporter en CSV',
+    print: 'Imprimer / Enregistrer en PDF',
+  },
+  tags: {
+    heading: 'Étiquettes',
+    namePlaceholder: 'Nom de la nouvelle étiquette',
+    add: 'Ajouter une étiquette',
+    creating: 'Création…',
+    empty: 'Aucune étiquette pour le moment.',
+    addToEntry: 'Ajouter une étiquette…',
+    remove: "Retirer l'étiquette",
   },
   clients: {
     title: 'Clients',

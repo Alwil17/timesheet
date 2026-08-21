@@ -3,12 +3,15 @@
 import { useState }                    from 'react'
 import { useProjects }                 from '@/hooks/useProjects'
 import { useCreateManualEntry }        from '@/hooks/useTimeEntries'
+import { useTags, useAddTagToEntry }   from '@/hooks/useTags'
 import { getErrorMessage }             from '@/lib/errors'
 import { useT }                        from '@/i18n/LocaleProvider'
 
 export function ManualEntryForm() {
   const { data: projects = [], isError: projectsError, error: projectsErrorObj } = useProjects()
+  const { data: tags = [] } = useTags()
   const createMut = useCreateManualEntry()
+  const addTagMut = useAddTagToEntry()
   const t = useT()
 
   const [projectId,   setProjectId]   = useState('')
@@ -16,8 +19,13 @@ export function ManualEntryForm() {
   const [endTime,     setEndTime]     = useState('')
   const [description, setDescription] = useState('')
   const [isBillable,  setIsBillable]  = useState(true)
+  const [tagIds,      setTagIds]      = useState<string[]>([])
 
   const endBeforeStart = !!startTime && !!endTime && new Date(endTime) <= new Date(startTime)
+
+  const toggleTag = (id: string) => {
+    setTagIds((prev) => (prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id]))
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -31,9 +39,10 @@ export function ManualEntryForm() {
         is_billable: isBillable,
       },
       {
-        onSuccess: () => {
+        onSuccess: (entry) => {
+          tagIds.forEach((tagId) => addTagMut.mutate({ timeEntryId: entry.id, tagId }))
           setProjectId(''); setStartTime(''); setEndTime('')
-          setDescription(''); setIsBillable(true)
+          setDescription(''); setIsBillable(true); setTagIds([])
         },
       }
     )
@@ -113,6 +122,25 @@ export function ManualEntryForm() {
         />
         {t('manualEntry.billable')}
       </label>
+
+      {tags.length > 0 && (
+        <div className="flex flex-wrap gap-1.5">
+          {tags.map((tag) => (
+            <button
+              key={tag.id}
+              type="button"
+              onClick={() => toggleTag(tag.id)}
+              className={
+                tagIds.includes(tag.id)
+                  ? 'bg-brand-500 text-white border border-brand-500 rounded-full px-2.5 py-0.5 text-xs transition-colors'
+                  : 'bg-white text-gray-600 border border-gray-200 rounded-full px-2.5 py-0.5 text-xs hover:border-brand-300 transition-colors'
+              }
+            >
+              {tag.name}
+            </button>
+          ))}
+        </div>
+      )}
 
       <button
         type="submit"

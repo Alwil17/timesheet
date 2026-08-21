@@ -3,6 +3,7 @@
 import { useState }                                   from 'react'
 import { useTimeEntries, useUpdateEntry, useDeleteEntry } from '@/hooks/useTimeEntries'
 import { useProjects }                                from '@/hooks/useProjects'
+import { useTags, useAddTagToEntry, useRemoveTagFromEntry } from '@/hooks/useTags'
 import { formatDuration }                             from '@/lib/format'
 import { getErrorMessage }                            from '@/lib/errors'
 import { format, parseISO }                           from 'date-fns'
@@ -18,8 +19,14 @@ function toDatetimeLocal(iso: string) {
 function EntryRow({ e, projects }: { e: EntryWithRelations; projects: Project[] }) {
   const updateMut = useUpdateEntry()
   const deleteMut = useDeleteEntry()
+  const { data: allTags = [] } = useTags()
+  const addTagMut = useAddTagToEntry()
+  const removeTagMut = useRemoveTagFromEntry()
   const t = useT()
   const { locale } = useLocale()
+
+  const entryTags = e.tags ?? []
+  const availableTags = allTags.filter((tag) => !entryTags.some((et) => et.id === tag.id))
 
   const [editing,      setEditing]      = useState(false)
   const [projectId,    setProjectId]    = useState(e.project_id)
@@ -176,6 +183,39 @@ function EntryRow({ e, projects }: { e: EntryWithRelations; projects: Project[] 
             {format(parseISO(e.start_time), 'dd MMM yyyy HH:mm', { locale: dateLocales[locale] })}
             {e.end_time && ` – ${format(parseISO(e.end_time), 'HH:mm', { locale: dateLocales[locale] })}`}
           </p>
+          <div className="flex items-center gap-1.5 flex-wrap mt-1.5">
+            {entryTags.map((tag) => (
+              <span
+                key={tag.id}
+                className="flex items-center gap-1 bg-brand-50 text-brand-700 border border-brand-200 rounded-full pl-2 pr-1 py-0.5 text-[11px]"
+              >
+                {tag.name}
+                <button
+                  onClick={() => removeTagMut.mutate({ timeEntryId: e.id, tagId: tag.id })}
+                  disabled={removeTagMut.isPending}
+                  aria-label={`${t('tags.remove')} ${tag.name}`}
+                  className="text-brand-400 hover:text-brand-700 transition-colors disabled:opacity-50"
+                >
+                  ×
+                </button>
+              </span>
+            ))}
+            {availableTags.length > 0 && (
+              <select
+                value=""
+                onChange={(ev) => {
+                  if (ev.target.value) addTagMut.mutate({ timeEntryId: e.id, tagId: ev.target.value })
+                }}
+                aria-label={t('tags.addToEntry')}
+                className="text-[11px] border border-gray-200 rounded-full px-2 py-0.5 text-gray-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+              >
+                <option value="">{t('tags.addToEntry')}</option>
+                {availableTags.map((tag) => (
+                  <option key={tag.id} value={tag.id}>{tag.name}</option>
+                ))}
+              </select>
+            )}
+          </div>
         </div>
 
         <div className="flex items-center gap-3 shrink-0">
