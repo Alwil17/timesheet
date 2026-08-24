@@ -1,0 +1,22 @@
+# Timesheet
+
+> Time tracking for freelancers and small agencies who bill by the hour. Free forever, no credit card required.
+
+Timesheet is a web app for tracking billable hours across multiple clients and projects. Start a timer in one click, organize entries by client/project with per-project hourly rates, tag entries for reporting, and export a CSV or print/PDF for invoicing. A browser extension lets you start/stop the timer from any tab. Available in English and French.
+
+## Key facts
+
+- Pricing: free forever, no credit card.
+- Core feature: one-click timer with project search and description autocomplete.
+- Organization: multi-client, multi-project, with hourly rate per project.
+- Tags: label entries as billable/non-billable or by category.
+- Export: CSV export and print/PDF, for invoicing.
+- Browser extension: start/stop from any tab, keyboard shortcut, idle detection, dark mode.
+- Reminders: nudges the user during work hours if no timer is running.
+- Languages: English, French.
+- Sign up: /auth?mode=signup
+- Sign in: /auth
+
+## Pages
+
+- [Homepage](https://timesheet-zeta-rosy.vercel.app/): product overview, features, how it works, FAQ.
