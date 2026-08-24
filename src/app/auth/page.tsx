@@ -84,7 +84,7 @@ export default function AuthPage() {
         if (signInError) throw signInError
         // Keep the button disabled until the redirect actually navigates away —
         // resetting loading here would let the user click it again mid-transition.
-        router.push('/')
+        router.push('/dashboard')
         router.refresh()
       }
     } catch (err: unknown) {

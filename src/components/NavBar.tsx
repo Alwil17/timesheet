@@ -14,7 +14,7 @@ export function NavBar() {
   const t        = useT()
 
   const links = [
-    { href: '/',          label: t('nav.dashboard') },
+    { href: '/dashboard', label: t('nav.dashboard') },
     { href: '/clients',   label: t('nav.clients') },
     { href: '/projects',  label: t('nav.projects') },
     { href: '/entries',   label: t('nav.entries') },
