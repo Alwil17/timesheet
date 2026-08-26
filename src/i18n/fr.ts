@@ -101,6 +101,7 @@ export const fr: Dictionary = {
     starting: 'Démarrage…',
     stop: 'Arrêter',
     stopping: 'Arrêt…',
+    backToTab: 'Retour à l\'onglet',
   },
   manualEntry: {
     heading: 'Ajouter une entrée manuelle',

@@ -99,6 +99,7 @@ export const en = {
     starting: 'Starting…',
     stop: 'Stop',
     stopping: 'Stopping…',
+    backToTab: 'Back to tab',
   },
   manualEntry: {
     heading: 'Add Manual Entry',

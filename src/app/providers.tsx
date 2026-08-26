@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { RealtimeSync }      from '@/components/RealtimeSync'
+import { PipTimer }          from '@/components/PipTimer'
 import { LocaleProvider }    from '@/i18n/LocaleProvider'
 
 export function Providers({ children }: { children: React.ReactNode }) {
@@ -24,6 +25,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <RealtimeSync />
       <LocaleProvider>
         {children}
+        <PipTimer />
         <ReactQueryDevtools initialIsOpen={false} />
       </LocaleProvider>
     </QueryClientProvider>
