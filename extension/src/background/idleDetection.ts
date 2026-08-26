@@ -4,7 +4,7 @@ import { getRunningEntry, stopTimer, startTimer } from '../lib/timerService'
 // chrome.idle API (OS-level idle signal) instead of DOM activity listeners —
 // a background service worker has no DOM to attach listeners to, and
 // chrome.idle keeps working even while the popup is closed.
-const IDLE_THRESHOLD_MINUTES = 15
+const IDLE_THRESHOLD_MINUTES = 120
 const NOTIFICATION_ID = 'timesheet-idle-detected'
 
 const STORAGE_KEYS = {
