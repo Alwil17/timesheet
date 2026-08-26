@@ -1,12 +1,16 @@
 'use client'
 
 /**
- * Opens a Document Picture-in-Picture window automatically when the tab is
- * hidden while `active` (a timer running), and closes it when the tab comes
- * back to the foreground or the timer stops. Chrome/Edge 116+ only — no-ops
- * everywhere else (Document PiP is unsupported in Firefox/Safari).
+ * Manages a Document Picture-in-Picture window for the running timer.
+ *
+ * Document PiP's requestWindow() requires transient activation (a recent
+ * click) — it cannot be opened from a `visibilitychange` handler, so this
+ * is a manual pop-out (call `openPip` from a click handler), not a
+ * zero-gesture auto-open. Once open, it auto-closes when the tab regains
+ * focus or the timer stops. Chrome/Edge 116+ only — `supported` is false
+ * everywhere else (Firefox/Safari lack Document PiP).
  */
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 declare global {
   interface Window {
@@ -19,42 +23,32 @@ declare global {
 
 export function usePipTimer(active: boolean) {
   const [pipWindow, setPipWindow] = useState<Window | null>(null)
-  const openingRef = useRef(false)
+  const supported = typeof window !== 'undefined' && !!window.documentPictureInPicture
 
+  const openPip = useCallback(async () => {
+    if (!supported || window.documentPictureInPicture!.window) return
+    try {
+      const pip = await window.documentPictureInPicture!.requestWindow({ width: 260, height: 120 })
+      pip.document.body.style.margin = '0'
+      pip.addEventListener('pagehide', () => setPipWindow(null), { once: true })
+      setPipWindow(pip)
+    } catch {
+      // Denied, or called outside a fresh user gesture — skip silently.
+    }
+  }, [supported])
+
+  // Close pip when the tab regains focus.
   useEffect(() => {
-    if (typeof window === 'undefined' || !window.documentPictureInPicture) return
-
-    const openPip = async () => {
-      if (openingRef.current || window.documentPictureInPicture!.window) return
-      openingRef.current = true
-      try {
-        const pip = await window.documentPictureInPicture!.requestWindow({ width: 260, height: 120 })
-        pip.document.body.style.margin = '0'
-        pip.addEventListener('pagehide', () => setPipWindow(null), { once: true })
-        setPipWindow(pip)
-      } catch {
-        // Denied, or no user-activation in this browser session — skip silently.
-      } finally {
-        openingRef.current = false
-      }
-    }
-
-    const closePip = () => {
-      window.documentPictureInPicture?.window?.close()
-      setPipWindow(null)
-    }
-
+    if (!pipWindow) return
     const onVisibilityChange = () => {
-      if (document.hidden) {
-        if (active) openPip()
-      } else {
-        closePip()
+      if (!document.hidden) {
+        pipWindow.close()
+        setPipWindow(null)
       }
     }
-
     document.addEventListener('visibilitychange', onVisibilityChange)
     return () => document.removeEventListener('visibilitychange', onVisibilityChange)
-  }, [active])
+  }, [pipWindow])
 
   // Close pip if the timer stops while it's open.
   useEffect(() => {
@@ -64,5 +58,5 @@ export function usePipTimer(active: boolean) {
     }
   }, [active, pipWindow])
 
-  return pipWindow
+  return { pipWindow, openPip, supported }
 }

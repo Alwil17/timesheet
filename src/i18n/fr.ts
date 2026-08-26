@@ -102,6 +102,7 @@ export const fr: Dictionary = {
     stop: 'Arrêter',
     stopping: 'Arrêt…',
     backToTab: 'Retour à l\'onglet',
+    popOut: 'Détacher le minuteur',
   },
   manualEntry: {
     heading: 'Ajouter une entrée manuelle',

@@ -100,6 +100,7 @@ export const en = {
     stop: 'Stop',
     stopping: 'Stopping…',
     backToTab: 'Back to tab',
+    popOut: 'Pop out timer',
   },
   manualEntry: {
     heading: 'Add Manual Entry',
